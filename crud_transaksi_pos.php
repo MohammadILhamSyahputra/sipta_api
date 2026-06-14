@@ -26,6 +26,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             echo json_encode($data);
             break;
 
+        case "scan_single_barang":
+            // Menggunakan $conn (sesuai filemu) dan fungsi asli mysqli_real_escape_string
+            $kode = mysqli_real_escape_string($conn, $_POST['kode_barang']);
+            
+            $sql = "SELECT id, kode_barang, nama, stok, harga_jual FROM barang WHERE kode_barang = '$kode' LIMIT 1";
+            $result = mysqli_query($conn, $sql);
+            
+            if (mysqli_num_rows($result) > 0) {
+                $row = mysqli_fetch_assoc($result);
+                
+                $output = array(
+                    "id" => (int)$row['id'],
+                    "kode_barang" => $row['kode_barang'],
+                    "nama" => $row['nama'],
+                    "stok" => (int)$row['stok'],
+                    "harga_jual" => (int)$row['harga_jual']
+                );
+                echo json_encode($output);
+            } else {
+                $outputGagal = array(
+                    "status" => "gagal",
+                    "pesan" => "Barang dengan kode '$kode' tidak terdaftar!"
+                );
+                echo json_encode($outputGagal);
+            }
+            break;
+
         case "proses_checkout":
             $total_harga = $_POST['total_harga'];
             $total_bayar = $_POST['total_bayar'];
